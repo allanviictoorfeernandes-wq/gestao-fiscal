@@ -3,485 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaxFlow Pro | Gestão Fiscal Inteligente</title>
+    <title>TaxFlow Pro v2.0 | Enterprise Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #0f172a;
             --accent: #2563eb;
+            --accent-soft: #eff6ff;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
-            --bg-app: #f4f7f6;
+            --bg-app: #f8fafc;
             --sidebar-bg: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --border: #e2e8f0;
+            --radius: 12px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-
-        body {
-            background-color: var(--bg-app);
-            color: var(--text-main);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
+        body { background-color: var(--bg-app); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
         /* Sidebar */
         aside {
-            width: 260px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            padding: 2rem 1.5rem;
-            z-index: 10;
+            width: 280px; background: var(--sidebar-bg); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; padding: 2rem 1.2rem;
         }
 
-        .logo {
-            font-weight: 800;
-            font-size: 1.5rem;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 3rem;
-        }
-
+        .logo { font-weight: 800; font-size: 1.4rem; color: var(--accent); margin-bottom: 2.5rem; padding-left: 0.8rem; }
+        
+        .nav-group { flex: 1; }
         .nav-item {
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            display: flex; align-items: center; gap: 12px; padding: 0.8rem 1rem;
+            border-radius: var(--radius); color: var(--text-muted); text-decoration: none;
+            font-weight: 500; margin-bottom: 0.4rem; transition: 0.2s; cursor: pointer;
         }
+        .nav-item:hover { background: #f1f5f9; color: var(--primary); }
+        .nav-item.active { background: var(--accent-soft); color: var(--accent); }
 
-        .nav-item.active {
-            background: #eff6ff;
-            color: var(--accent);
-        }
-
-        .nav-item:hover:not(.active) {
-            background: #f8fafc;
-            color: var(--primary);
-        }
-
-        /* Main Content */
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
+        /* Content Area */
+        main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        
         header {
-            background: #fff;
-            padding: 1.5rem 2.5rem;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: #fff; padding: 1.2rem 2.5rem; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
         }
 
-        .header-stats { display: flex; gap: 2.5rem; }
-        .stat-group span { display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
-        .stat-group strong { font-size: 1.25rem; color: var(--primary); }
+        .view-section { display: none; flex-direction: column; height: 100%; overflow-y: auto; padding: 2rem 2.5rem; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: flex; }
 
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.23); }
-
-        /* Kanban Layout */
-        .kanban-view {
-            padding: 2rem 2.5rem;
-            display: flex;
-            gap: 1.5rem;
-            flex: 1;
-            overflow-x: auto;
-        }
-
-        .column {
-            min-width: 320px;
-            width: 320px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .column-title {
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .column-count {
-            background: #e2e8f0;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-        }
-
-        .dropzone {
-            flex: 1;
-            border-radius: 12px;
-            padding: 0.5rem;
-            transition: background 0.2s ease;
-            min-height: 200px;
-        }
-
-        .dropzone.highlight { background: rgba(37, 99, 235, 0.05); outline: 2px dashed #cbd5e1; }
-
-        /* Card Style */
+        /* Kanban Specifics */
+        .kanban-grid { display: flex; gap: 1.5rem; align-items: flex-start; }
+        .column { min-width: 300px; width: 300px; background: #f1f5f9; border-radius: 16px; padding: 1rem; }
+        .column-header { padding: 0.5rem 0.5rem 1.5rem; font-weight: 700; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; display: flex; justify-content: space-between; }
+        
+        .dropzone { min-height: 500px; }
         .card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-            box-shadow: var(--card-shadow);
-            cursor: grab;
-            transition: var(--transition);
-            border: 1px solid transparent;
+            background: #fff; border-radius: var(--radius); padding: 1.2rem; margin-bottom: 1rem;
+            box-shadow: var(--shadow); cursor: grab; border: 1px solid transparent; transition: 0.2s;
             position: relative;
         }
-
-        .card:hover { transform: translateY(-3px); border-color: #cbd5e1; }
-        .card:active { cursor: grabbing; }
-
-        .card-tag {
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 4px;
-            background: #f1f5f9;
-            color: var(--text-muted);
-            margin-bottom: 0.75rem;
-            display: inline-block;
-        }
-
-        .card-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 1rem; color: var(--primary); }
-
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 1rem;
-            border-top: 1px solid #f1f5f9;
-        }
-
-        .card-value { font-weight: 700; font-size: 0.9rem; color: var(--primary); }
-        .card-date { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+        .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .card-tag { font-size: 0.6rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; background: #f1f5f9; margin-bottom: 0.8rem; display: inline-block; }
+        .card-val { font-weight: 700; font-size: 1rem; margin-top: 0.8rem; display: block; }
         
-        .date-alert { color: var(--danger); font-weight: 600; }
-        .date-safe { color: var(--success); }
+        .btn-del { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: #cbd5e1; cursor: pointer; opacity: 0; transition: 0.2s; }
+        .card:hover .btn-del { opacity: 1; }
+        .btn-del:hover { color: var(--danger); }
 
-        .card-actions {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            display: flex;
-            gap: 8px;
-            opacity: 0;
-            transition: 0.2s;
-        }
+        /* Report View (Dashboard) */
+        .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2.5rem; }
+        .metric-card { background: #fff; padding: 1.5rem; border-radius: 16px; border: 1px solid var(--border); }
+        .metric-card span { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        .metric-card h3 { font-size: 1.8rem; margin-top: 0.5rem; }
 
-        .card:hover .card-actions { opacity: 1; }
+        .chart-container { background: #fff; padding: 2rem; border-radius: 16px; border: 1px solid var(--border); }
+        .bar-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+        .bar-label { width: 100px; font-size: 0.8rem; font-weight: 600; }
+        .bar-track { flex: 1; height: 12px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
+        .bar-fill { height: 100%; background: var(--accent); transition: width 1s ease; }
 
-        .action-icon {
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: 0.2s;
-        }
-
-        .action-icon:hover { color: var(--danger); }
-        .edit-icon:hover { color: var(--accent); }
-
+        /* Common Components */
+        .btn-prime { background: var(--accent); color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        
         /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            width: 450px;
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-
-        .form-group { margin-bottom: 1.25rem; }
-        label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-muted); }
-        input, select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 8px;
-            outline: none;
-            transition: 0.2s;
-        }
-        input:focus { border-color: var(--accent); }
-
-        .modal-footer { display: flex; gap: 1rem; margin-top: 2rem; }
-        .btn-ghost { background: transparent; border: 1.5px solid #e2e8f0; flex: 1; padding: 0.75rem; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-muted); }
+        #modal { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); z-index: 100; justify-content: center; align-items: center; }
+        .modal-box { background: #fff; padding: 2.5rem; border-radius: 20px; width: 450px; }
+        .input-group { margin-bottom: 1.2rem; }
+        label { display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-muted); }
+        input, select { width: 100%; padding: 0.8rem; border: 1px solid var(--border); border-radius: 8px; outline: none; }
+        
     </style>
 </head>
 <body>
 
     <aside>
-        <div class="logo">📊 TaxFlow</div>
-        <nav>
-            <a href="#" class="nav-item active">Quadro Fiscal</a>
-            <a href="#" class="nav-item">Obrigações</a>
-            <a href="#" class="nav-item">Relatórios</a>
-            <a href="#" class="nav-item">Configurações</a>
+        <div class="logo">TaxFlow 2.0</div>
+        <nav class="nav-group">
+            <div class="nav-item active" onclick="switchView('kanban', this)"><span>📋</span> Quadro Kanban</div>
+            <div class="nav-item" onclick="switchView('list', this)"><span>📑</span> Obrigações</div>
+            <div class="nav-item" onclick="switchView('reports', this)"><span>📊</span> Relatórios BI</div>
+            <div class="nav-item" onclick="switchView('config', this)"><span>⚙️</span> Configurações</div>
         </nav>
     </aside>
 
     <main>
         <header>
-            <div class="header-stats">
-                <div class="stat-group"><span>Pendentes</span><strong id="stat-pending">0</strong></div>
-                <div class="stat-group"><span>Vencendo Hoje</span><strong id="stat-today" style="color: var(--danger)">0</strong></div>
-                <div class="stat-group"><span>Valor Total</span><strong id="stat-total">R$ 0,00</strong></div>
-            </div>
-            <button class="btn-primary" onclick="openModal()">+ Nova Tarefa</button>
+            <h2 id="view-title">Quadro Fiscal</h2>
+            <button class="btn-prime" onclick="openModal()">+ Nova Guia</button>
         </header>
 
-        <section class="kanban-view">
-            <div class="column" data-status="todo">
-                <div class="column-title">A Fazer <span class="column-count" id="count-todo">0</span></div>
-                <div class="dropzone" id="todo" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+        <section id="view-kanban" class="view-section active">
+            <div class="kanban-grid">
+                <div class="column"><div class="column-header">Pendente <span id="c1">0</span></div><div class="dropzone" id="todo" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
+                <div class="column"><div class="column-header">Análise <span id="c2">0</span></div><div class="dropzone" id="review" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
+                <div class="column"><div class="column-header">Pagamento <span id="c3">0</span></div><div class="dropzone" id="pay" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
+                <div class="column"><div class="column-header">Concluído <span id="c4">0</span></div><div class="dropzone" id="done" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
             </div>
-            <div class="column" data-status="review">
-                <div class="column-title">Em Análise <span class="column-count" id="count-review">0</span></div>
-                <div class="dropzone" id="review" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+        </section>
+
+        <section id="view-list" class="view-section">
+            <table style="width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden;">
+                <thead style="background: #f8fafc; text-align: left;">
+                    <tr>
+                        <th style="padding: 1rem;">Obrigação</th>
+                        <th style="padding: 1rem;">Data</th>
+                        <th style="padding: 1rem;">Valor</th>
+                        <th style="padding: 1rem;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="list-body"></tbody>
+            </table>
+        </section>
+
+        <section id="view-reports" class="view-section">
+            <div class="grid-stats">
+                <div class="metric-card"><span>TOTAL EM ABERTO</span><h3 id="stat-value">R$ 0,00</h3></div>
+                <div class="metric-card"><span>TAXA DE CONCLUSÃO</span><h3 id="stat-rate">0%</h3></div>
+                <div class="metric-card"><span>GUIAS VENCIDAS</span><h3 id="stat-expired" style="color: var(--danger)">0</h3></div>
             </div>
-            <div class="column" data-status="payment">
-                <div class="column-title">Aguardando Pagamento <span class="column-count" id="count-payment">0</span></div>
-                <div class="dropzone" id="payment" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            <div class="chart-container">
+                <h4 style="margin-bottom: 1.5rem">Distribuição por Categoria</h4>
+                <div id="chart-bars"></div>
             </div>
-            <div class="column" data-status="done">
-                <div class="column-title">Concluído <span class="column-count" id="count-done">0</span></div>
-                <div class="dropzone" id="done" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+        </section>
+
+        <section id="view-config" class="view-section">
+            <div style="max-width: 500px; background: #fff; padding: 2rem; border-radius: 16px; border: 1px solid var(--border);">
+                <h3>Preferências do Sistema</h3>
+                <div class="input-group" style="margin-top: 1.5rem">
+                    <label>Nome da Empresa</label>
+                    <input type="text" value="Allan Victor Consultoria Fiscal">
+                </div>
+                <div class="input-group">
+                    <label>Moeda Padrão</label>
+                    <select><option>BRL - Real Brasileiro</option></select>
+                </div>
+                <button class="btn-prime">Salvar Alterações</button>
             </div>
         </section>
     </main>
 
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <h2 id="modal-title" style="margin-bottom: 1.5rem;">Adicionar Obrigação</h2>
-            <form id="taxForm">
-                <input type="hidden" id="taskId">
-                <div class="form-group">
-                    <label>TÍTULO DA OBRIGAÇÃO</label>
-                    <input type="text" id="title" placeholder="Ex: Guia DAS Simples Nacional" required>
+    <div id="modal">
+        <div class="modal-box">
+            <h3>Nova Guia Fiscal</h3>
+            <form id="taxForm" style="margin-top: 1.5rem">
+                <div class="input-group"><label>NOME DA OBRIGAÇÃO</label><input type="text" id="t" required></div>
+                <div style="display: flex; gap: 1rem">
+                    <div class="input-group" style="flex:1"><label>VENCIMENTO</label><input type="date" id="d" required></div>
+                    <div class="input-group" style="flex:1"><label>VALOR (R$)</label><input type="number" step="0.01" id="v" required></div>
                 </div>
-                <div class="grid" style="display: flex; gap: 1rem;">
-                    <div class="form-group" style="flex: 1;">
-                        <label>VENCIMENTO</label>
-                        <input type="date" id="dueDate" required>
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>VALOR (R$)</label>
-                        <input type="number" step="0.01" id="value" placeholder="0,00" required>
-                    </div>
+                <div class="input-group">
+                    <label>CATEGORIA</label>
+                    <select id="tag"><option>ICMS</option><option>ISS</option><option>PIS</option><option>COFINS</option><option>IRPJ</option></select>
                 </div>
-                <div class="form-group">
-                    <label>TAG DO IMPOSTO</label>
-                    <select id="tag">
-                        <option value="ICMS">ICMS</option>
-                        <option value="ISS">ISS</option>
-                        <option value="PIS/COFINS">PIS/COFINS</option>
-                        <option value="IRPJ">IRPJ</option>
-                        <option value="Simples">Simples Nacional</option>
-                    </select>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-ghost" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn-primary" style="flex: 2;">Confirmar</button>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem">
+                    <button type="button" class="btn-prime" style="background:#f1f5f9; color: #64748b" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-prime" style="flex:1">Adicionar ao Quadro</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        let tasks = JSON.parse(localStorage.getItem('taxflow_db')) || [];
+        let tasks = JSON.parse(localStorage.getItem('tax_v2_db')) || [];
 
-        // App Logic
-        function saveTasks() {
-            localStorage.setItem('taxflow_db', JSON.stringify(tasks));
+        function switchView(viewId, el) {
+            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            el.classList.add('active');
+            document.getElementById('view-title').innerText = el.innerText.replace(/[^\w\s]/gi, '').trim();
             render();
         }
 
-        function getCountdown(dateStr) {
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            const target = new Date(dateStr);
-            target.setHours(24,0,0,0);
-            const diffTime = target - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diffDays === 0) return { text: "Vence Hoje", class: "date-alert" };
-            if (diffDays < 0) return { text: `Atrasado ${Math.abs(diffDays)}d`, class: "date-alert" };
-            if (diffDays <= 3) return { text: `Vence em ${diffDays}d`, class: "date-alert" };
-            return { text: `Vence em ${diffDays}d`, class: "date-safe" };
+        function openModal() { document.getElementById('modal').style.display='flex'; }
+        function closeModal() { document.getElementById('modal').style.display='none'; }
+
+        document.getElementById('taxForm').onsubmit = (e) => {
+            e.preventDefault();
+            tasks.push({
+                id: 'id' + Date.now(),
+                title: document.getElementById('t').value,
+                date: document.getElementById('d').value,
+                val: parseFloat(document.getElementById('v').value),
+                tag: document.getElementById('tag').value,
+                status: 'todo'
+            });
+            localStorage.setItem('tax_v2_db', JSON.stringify(tasks));
+            closeModal(); render();
+        };
+
+        function allowDrop(e) { e.preventDefault(); }
+        function drag(e) { e.dataTransfer.setData("text", e.target.id); }
+        function drop(e) {
+            e.preventDefault();
+            const id = e.dataTransfer.getData("text");
+            const status = e.target.closest('.dropzone').id;
+            tasks = tasks.map(t => t.id === id ? {...t, status} : t);
+            localStorage.setItem('tax_v2_db', JSON.stringify(tasks));
+            render();
+        }
+
+        function del(id) { 
+            if(confirm('Remover esta obrigação?')) {
+                tasks = tasks.filter(t => t.id !== id);
+                localStorage.setItem('tax_v2_db', JSON.stringify(tasks));
+                render();
+            }
         }
 
         function render() {
-            // Limpar listas
-            document.querySelectorAll('.dropzone').forEach(dz => dz.innerHTML = '');
+            // Render Kanban
+            const lists = ['todo', 'review', 'pay', 'done'];
+            lists.forEach(l => document.getElementById(l).innerHTML = '');
             
-            let totalValue = 0;
-            let pendingCount = 0;
-            let todayCount = 0;
+            let totalAberto = 0;
+            let concluidas = 0;
 
-            tasks.forEach(task => {
-                const countdown = getCountdown(task.dueDate);
-                if (task.status !== 'done') {
-                    totalValue += parseFloat(task.value);
-                    pendingCount++;
-                    if (countdown.text === "Vence Hoje") todayCount++;
-                }
-
+            tasks.forEach(t => {
                 const card = document.createElement('div');
-                card.className = 'card';
-                card.draggable = true;
-                card.id = task.id;
-                card.ondragstart = (e) => {
-                    e.dataTransfer.setData("text/plain", task.id);
-                    card.style.opacity = '0.5';
-                };
-                card.ondragend = () => card.style.opacity = '1';
-
-                card.innerHTML = `
-                    <div class="card-actions">
-                        <span class="action-icon edit-icon" onclick="editTask('${task.id}')">✎</span>
-                        <span class="action-icon" onclick="deleteTask('${task.id}')">🗑</span>
-                    </div>
-                    <span class="card-tag">${task.tag}</span>
-                    <div class="card-title">${task.title}</div>
-                    <div class="card-footer">
-                        <div class="card-value">R$ ${parseFloat(task.value).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                        <div class="card-date ${countdown.class}">
-                            <span>⏱</span> ${countdown.text}
-                        </div>
-                    </div>
-                `;
-
-                document.getElementById(task.status).appendChild(card);
+                card.className = 'card'; card.id = t.id; card.draggable = true;
+                card.ondragstart = drag;
+                card.innerHTML = `<button class="btn-del" onclick="del('${t.id}')">✕</button>
+                    <span class="card-tag">${t.tag}</span>
+                    <div style="font-weight:600; font-size: 0.9rem">${t.title}</div>
+                    <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 4px">📅 ${t.date.split('-').reverse().join('/')}</div>
+                    <span class="card-val">R$ ${t.val.toLocaleString('pt-BR')}</span>`;
+                document.getElementById(t.status).appendChild(card);
+                
+                if(t.status === 'done') concluidas++; else totalAberto += t.val;
             });
 
-            // Atualizar stats
-            document.getElementById('stat-total').innerText = totalValue.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('stat-pending').innerText = pendingCount;
-            document.getElementById('stat-today').innerText = todayCount;
+            // Render List View
+            const tbody = document.getElementById('list-body');
+            tbody.innerHTML = tasks.map(t => `
+                <tr style="border-bottom: 1px solid #f1f5f9">
+                    <td style="padding: 1rem; font-weight:600">${t.title}</td>
+                    <td style="padding: 1rem">${t.date}</td>
+                    <td style="padding: 1rem">R$ ${t.val}</td>
+                    <td style="padding: 1rem"><span class="card-tag">${t.status}</span></td>
+                </tr>
+            `).join('');
+
+            // Render Stats & Charts
+            document.getElementById('stat-value').innerText = totalAberto.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+            document.getElementById('stat-rate').innerText = tasks.length ? Math.round((concluidas/tasks.length)*100) + '%' : '0%';
+            
+            const cats = ['ICMS', 'ISS', 'PIS', 'COFINS', 'IRPJ'];
+            document.getElementById('chart-bars').innerHTML = cats.map(c => {
+                const count = tasks.filter(t => t.tag === c).length;
+                const perc = tasks.length ? (count / tasks.length) * 100 : 0;
+                return `<div class="bar-row">
+                    <div class="bar-label">${c}</div>
+                    <div class="bar-track"><div class="bar-fill" style="width: ${perc}%"></div></div>
+                    <div style="font-size: 0.7rem; font-weight:700">${count}</div>
+                </div>`;
+            }).join('');
 
             // Counters
-            const statuses = ['todo', 'review', 'payment', 'done'];
-            statuses.forEach(s => {
-                document.getElementById(`count-${s}`).innerText = tasks.filter(t => t.status === s).length;
+            lists.forEach((l, idx) => {
+                document.getElementById('c'+(idx+1)).innerText = tasks.filter(t => t.status === l).length;
             });
         }
-
-        // CRUD
-        const modal = document.getElementById('modal');
-        const form = document.getElementById('taxForm');
-
-        function openModal() {
-            document.getElementById('modal-title').innerText = "Adicionar Obrigação";
-            document.getElementById('taskId').value = "";
-            form.reset();
-            modal.style.display = 'flex';
-        }
-
-        function closeModal() { modal.style.display = 'none'; }
-
-        form.onsubmit = (e) => {
-            e.preventDefault();
-            const id = document.getElementById('taskId').value;
-            const data = {
-                title: document.getElementById('title').value,
-                dueDate: document.getElementById('dueDate').value,
-                value: document.getElementById('value').value,
-                tag: document.getElementById('tag').value
-            };
-
-            if (id) {
-                tasks = tasks.map(t => t.id === id ? { ...t, ...data } : t);
-            } else {
-                tasks.push({ ...data, id: 't-' + Date.now(), status: 'todo' });
-            }
-
-            saveTasks();
-            closeModal();
-        };
-
-        window.editTask = (id) => {
-            const task = tasks.find(t => t.id === id);
-            document.getElementById('modal-title').innerText = "Editar Obrigação";
-            document.getElementById('taskId').value = task.id;
-            document.getElementById('title').value = task.title;
-            document.getElementById('dueDate').value = task.dueDate;
-            document.getElementById('value').value = task.value;
-            document.getElementById('tag').value = task.tag;
-            modal.style.display = 'flex';
-        };
-
-        window.deleteTask = (id) => {
-            if (confirm("Deseja excluir esta tarefa?")) {
-                tasks = tasks.filter(t => t.id !== id);
-                saveTasks();
-            }
-        };
-
-        // Drag & Drop
-        window.allowDrop = (e) => {
-            e.preventDefault();
-            e.currentTarget.classList.add('highlight');
-        };
-
-        window.dragLeave = (e) => {
-            e.currentTarget.classList.remove('highlight');
-        };
-
-        window.drop = (e) => {
-            e.preventDefault();
-            const id = e.dataTransfer.getData("text/plain");
-            const newStatus = e.currentTarget.id;
-            e.currentTarget.classList.remove('highlight');
-            
-            tasks = tasks.map(t => t.id === id ? { ...t, status: newStatus } : t);
-            saveTasks();
-        };
 
         render();
     </script>
