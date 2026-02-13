@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Fiscal Pro - Tech Lead</title>
+    <title>Gestão Fiscal Pro - Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -21,14 +21,7 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         
-        body { 
-            background-color: var(--bg); 
-            color: var(--text-main);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+        body { background-color: var(--bg); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
         header {
             padding: 1rem 2rem;
@@ -40,88 +33,40 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
-        .header-controls { display: flex; gap: 0.8rem; align-items: center; }
-
-        input#searchTask {
-            padding: 0.6rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            width: 220px;
-            font-size: 0.85rem;
-        }
-
-        .btn {
-            border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s;
-            font-size: 0.85rem;
-        }
-
-        .btn-add { background: var(--primary); color: white; }
-        .btn-add:hover { background: var(--primary-hover); }
-
-        .btn-export { background: #fff; color: var(--text-main); border: 1px solid var(--border); }
-        .btn-export:hover { background: #f8fafc; }
-
-        .kanban-container {
+        /* DASHBOARD STATS */
+        .dashboard-stats {
             display: flex;
-            gap: 1.25rem;
-            padding: 1.5rem;
-            overflow-x: auto;
-            flex: 1;
-            align-items: flex-start;
+            gap: 1.5rem;
+            padding: 1rem 2rem;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
         }
 
-        .column {
-            background: #e2e8f0;
-            min-width: 280px;
-            width: 280px;
-            border-radius: 10px;
+        .stat-item {
             display: flex;
             flex-direction: column;
-            max-height: calc(100vh - 120px);
         }
 
-        .column-header {
-            padding: 1.2rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.7rem;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .stat-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-value { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+        .stat-value.urgent { color: var(--high); }
 
-        .counter {
-            background: #cbd5e1;
-            padding: 2px 8px;
-            border-radius: 12px;
-            color: var(--text-main);
-        }
+        .header-controls { display: flex; gap: 0.8rem; align-items: center; }
 
-        .task-list {
-            padding: 0.75rem;
-            min-height: 100px;
-            overflow-y: auto;
-            flex-grow: 1;
-        }
+        input#searchTask { padding: 0.6rem 1rem; border: 1px solid var(--border); border-radius: 6px; width: 220px; font-size: 0.85rem; }
 
-        .task-card {
-            background: var(--card-bg);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            cursor: grab;
-            border-left: 5px solid transparent;
-            position: relative;
-        }
+        .btn { border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
+        .btn-add { background: var(--primary); color: white; }
+        .btn-add:hover { background: var(--primary-hover); }
+        .btn-secondary { background: #fff; color: var(--text-main); border: 1px solid var(--border); }
 
+        .kanban-container { display: flex; gap: 1.25rem; padding: 1.5rem; overflow-x: auto; flex: 1; align-items: flex-start; }
+        .column { background: #e2e8f0; min-width: 280px; width: 280px; border-radius: 10px; display: flex; flex-direction: column; max-height: calc(100vh - 180px); }
+        .column-header { padding: 1.2rem; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+        .counter { background: #cbd5e1; padding: 2px 8px; border-radius: 12px; color: var(--text-main); }
+
+        .task-list { padding: 0.75rem; min-height: 100px; overflow-y: auto; flex-grow: 1; }
+        .task-card { background: var(--card-bg); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: grab; border-left: 5px solid transparent; position: relative; }
         .task-card.dragging { opacity: 0.4; }
 
         .priority-high { border-left-color: var(--high); }
@@ -132,90 +77,59 @@
         .task-info { font-size: 0.75rem; color: var(--text-muted); }
         .task-value { font-weight: 700; color: var(--text-main); margin-top: 0.5rem; display: block; }
 
-        .btn-delete {
-            position: absolute;
-            top: 0.8rem;
-            right: 0.8rem;
-            background: none;
-            border: none;
-            color: #cbd5e1;
-            cursor: pointer;
-            font-size: 1.1rem;
-        }
+        .btn-delete { position: absolute; top: 0.8rem; right: 0.8rem; background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 1.1rem; }
         .btn-delete:hover { color: var(--high); }
 
-        #modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(4px);
-            justify-content: center; align-items: center;
-            z-index: 100;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            width: 400px;
-        }
-
+        #modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: white; padding: 2rem; border-radius: 12px; width: 400px; }
         .form-group { margin-bottom: 1.2rem; }
         label { display: block; font-size: 0.75rem; margin-bottom: 0.4rem; font-weight: 600; color: var(--text-muted); }
         input, select { width: 100%; padding: 0.7rem; border: 1px solid var(--border); border-radius: 6px; }
-
         .modal-actions { display: flex; gap: 0.75rem; margin-top: 2rem; }
-        .btn-save { background: var(--primary); color: white; border: none; flex: 2; padding: 0.8rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
-        .btn-cancel { background: #f1f5f9; border: none; flex: 1; padding: 0.8rem; border-radius: 6px; cursor: pointer; color: var(--text-muted); }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Gestão Fiscal <span style="font-weight: 300; opacity: 0.6;">Sênior</span></h1>
+    <h1>FiscalFlow <span style="font-weight: 300; opacity: 0.6;">Sênior</span></h1>
     <div class="header-controls">
         <input type="text" id="searchTask" placeholder="🔍 Buscar..." oninput="render()">
-        <button class="btn btn-export" onclick="exportToCSV()">📤 Exportar CSV</button>
+        <button class="btn btn-secondary" onclick="exportToCSV()">📤 Exportar</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📥 Importar</button>
+        <input type="file" id="importFile" hidden accept=".csv" onchange="importCSV(this)">
         <button class="btn btn-add" onclick="toggleModal(true)">+ Nova Tarefa</button>
     </div>
 </header>
 
+<div class="dashboard-stats">
+    <div class="stat-item">
+        <span class="stat-label">Total Pendente</span>
+        <div class="stat-value" id="stat-total-count">0</div>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Valor em Aberto</span>
+        <div class="stat-value urgent" id="stat-total-value">R$ 0,00</div>
+    </div>
+    <div class="stat-item">
+        <span class="stat-label">Concluído</span>
+        <div class="stat-value" id="stat-done-count" style="color: var(--low)">0</div>
+    </div>
+</div>
+
 <main class="kanban-container">
-    <div class="column" data-status="pending">
-        <div class="column-header">Pendente <span class="counter">0</span></div>
-        <div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    </div>
-    <div class="column" data-status="analysis">
-        <div class="column-header">Em Análise <span class="counter">0</span></div>
-        <div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    </div>
-    <div class="column" data-status="payment">
-        <div class="column-header">Pagamento <span class="counter">0</span></div>
-        <div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    </div>
-    <div class="column" data-status="done">
-        <div class="column-header">Concluído <span class="counter">0</span></div>
-        <div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-    </div>
+    <div class="column" data-status="pending"><div class="column-header">Pendente <span class="counter">0</span></div><div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
+    <div class="column" data-status="analysis"><div class="column-header">Em Análise <span class="counter">0</span></div><div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
+    <div class="column" data-status="payment"><div class="column-header">Pagamento <span class="counter">0</span></div><div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
+    <div class="column" data-status="done"><div class="column-header">Concluído <span class="counter">0</span></div><div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
 </main>
 
 <div id="modal">
     <div class="modal-content">
-        <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem;">Nova Obrigação</h2>
+        <h2 style="margin-bottom: 1.5rem;">Nova Obrigação</h2>
         <form id="taskForm">
-            <div class="form-group">
-                <label>OBRIGAÇÃO</label>
-                <input type="text" id="title" required>
-            </div>
-            <div class="form-group">
-                <label>VENCIMENTO</label>
-                <input type="date" id="dueDate" required>
-            </div>
-            <div class="form-group">
-                <label>VALOR (R$)</label>
-                <input type="number" step="0.01" id="value" required>
-            </div>
+            <div class="form-group"><label>OBRIGAÇÃO</label><input type="text" id="title" required></div>
+            <div class="form-group"><label>VENCIMENTO</label><input type="date" id="dueDate" required></div>
+            <div class="form-group"><label>VALOR (R$)</label><input type="number" step="0.01" id="value" required></div>
             <div class="form-group">
                 <label>PRIORIDADE</label>
                 <select id="priority">
@@ -225,8 +139,8 @@
                 </select>
             </div>
             <div class="modal-actions">
-                <button type="button" class="btn-cancel" onclick="toggleModal(false)">Cancelar</button>
-                <button type="submit" class="btn-save">Salvar</button>
+                <button type="button" class="btn btn-secondary" style="flex:1" onclick="toggleModal(false)">Cancelar</button>
+                <button type="submit" class="btn btn-add" style="flex:2; justify-content:center">Salvar</button>
             </div>
         </form>
     </div>
@@ -242,27 +156,21 @@
 
     document.getElementById('taskForm').onsubmit = (e) => {
         e.preventDefault();
-        const newTask = {
+        const rawV = parseFloat(document.getElementById('value').value);
+        tasks.push({
             id: 'id-' + Date.now(),
             title: document.getElementById('title').value,
             dueDate: document.getElementById('dueDate').value,
-            valueRaw: parseFloat(document.getElementById('value').value),
-            value: parseFloat(document.getElementById('value').value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            valueRaw: rawV,
+            value: rawV.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
             priority: document.getElementById('priority').value,
             status: 'pending'
-        };
-        tasks.push(newTask);
+        });
         saveAndRender();
         toggleModal(false);
     };
 
-    function deleteTask(id) {
-        if(confirm('Excluir esta tarefa?')) {
-            tasks = tasks.filter(t => t.id !== id);
-            saveAndRender();
-        }
-    }
-
+    function deleteTask(id) { if(confirm('Excluir esta tarefa?')) { tasks = tasks.filter(t => t.id !== id); saveAndRender(); } }
     function allowDrop(ev) { ev.preventDefault(); }
     function drag(ev) { ev.dataTransfer.setData("taskId", ev.target.id); ev.target.classList.add('dragging'); }
     function drop(ev) {
@@ -270,58 +178,69 @@
         const id = ev.dataTransfer.getData("taskId");
         const dropzone = ev.target.closest('.task-list');
         if (dropzone) {
-            const newStatus = dropzone.parentElement.dataset.status;
-            tasks = tasks.map(t => t.id === id ? { ...t, status: newStatus } : t);
+            tasks = tasks.map(t => t.id === id ? { ...t, status: dropzone.parentElement.dataset.status } : t);
             saveAndRender();
         }
     }
 
     function exportToCSV() {
-        if (tasks.length === 0) return alert("Não há dados para exportar.");
-        let csv = "Obrigacao;Vencimento;Valor;Prioridade;Status\n";
-        tasks.forEach(t => {
-            csv += `${t.title};${t.dueDate};${t.value};${t.priority};${t.status}\n`;
-        });
+        let csv = "\uFEFFObrigacao;Vencimento;Valor;Prioridade;Status\n";
+        tasks.forEach(t => csv += `${t.title};${t.dueDate};${t.valueRaw};${t.priority};${t.status}\n`);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", `relatorio_fiscal_${new Date().toLocaleDateString()}.csv`);
+        link.download = `relatorio_fiscal.csv`;
         link.click();
     }
 
-    function saveAndRender() {
-        localStorage.setItem('fiscal_tasks_v3', JSON.stringify(tasks));
-        render();
+    function importCSV(input) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const lines = e.target.result.split('\n').slice(1);
+            lines.forEach(line => {
+                const [title, date, val, prio, status] = line.split(';');
+                if(title) tasks.push({
+                    id: 'id-'+Date.now()+Math.random(), title, dueDate: date, valueRaw: parseFloat(val),
+                    value: parseFloat(val).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),
+                    priority: prio, status: status.trim()
+                });
+            });
+            saveAndRender();
+        };
+        reader.readAsText(file);
     }
+
+    function saveAndRender() { localStorage.setItem('fiscal_tasks_v3', JSON.stringify(tasks)); render(); }
 
     function render() {
         const search = document.getElementById('searchTask').value.toLowerCase();
         document.querySelectorAll('.task-list').forEach(l => l.innerHTML = '');
         
+        let totalPendenteValue = 0;
         const filtered = tasks.filter(t => t.title.toLowerCase().includes(search));
         
         filtered.forEach(task => {
+            if(task.status !== 'done') totalPendenteValue += task.valueRaw;
             const card = document.createElement('div');
             card.className = `task-card priority-${task.priority}`;
-            card.id = task.id;
-            card.draggable = true;
-            card.ondragstart = drag;
+            card.id = task.id; card.draggable = true; card.ondragstart = drag;
             card.ondragend = (e) => e.target.classList.remove('dragging');
-            card.innerHTML = `
-                <button class="btn-delete" onclick="deleteTask('${task.id}')">&times;</button>
+            card.innerHTML = `<button class="btn-delete" onclick="deleteTask('${task.id}')">&times;</button>
                 <div class="task-title">${task.title}</div>
                 <div class="task-info">📅 ${task.dueDate.split('-').reverse().join('/')}</div>
-                <span class="task-value">${task.value}</span>
-            `;
-            const col = document.querySelector(`[data-status="${task.status}"] .task-list`);
-            if(col) col.appendChild(card);
+                <span class="task-value">${task.value}</span>`;
+            document.querySelector(`[data-status="${task.status}"] .task-list`).appendChild(card);
         });
 
+        document.getElementById('stat-total-count').innerText = tasks.filter(t => t.status !== 'done').length;
+        document.getElementById('stat-done-count').innerText = tasks.filter(t => t.status === 'done').length;
+        document.getElementById('stat-total-value').innerText = totalPendenteValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        
         document.querySelectorAll('.column').forEach(col => {
             col.querySelector('.counter').innerText = filtered.filter(t => t.status === col.dataset.status).length;
         });
     }
-
     render();
 </script>
 </body>
