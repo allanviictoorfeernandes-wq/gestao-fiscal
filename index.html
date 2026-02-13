@@ -3,245 +3,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Fiscal Pro - Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>TaxFlow Pro | Gestão Fiscal Inteligente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-app: #f4f7f6;
+            --sidebar-bg: #ffffff;
+            --text-main: #1e293b;
             --text-muted: #64748b;
-            --border: #e2e8f0;
-            --high: #ef4444;
-            --medium: #f59e0b;
-            --low: #10b981;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        
-        body { background-color: var(--bg); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        body {
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        aside {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            z-index: 10;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 3rem;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item.active {
+            background: #eff6ff;
+            color: var(--accent);
+        }
+
+        .nav-item:hover:not(.active) {
+            background: #f8fafc;
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
 
         header {
-            padding: 1rem 2rem;
             background: #fff;
-            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2.5rem;
+            border-bottom: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
-        /* DASHBOARD STATS */
-        .dashboard-stats {
+        .header-stats { display: flex; gap: 2.5rem; }
+        .stat-group span { display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .stat-group strong { font-size: 1.25rem; color: var(--primary); }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
+        }
+
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.23); }
+
+        /* Kanban Layout */
+        .kanban-view {
+            padding: 2rem 2.5rem;
             display: flex;
             gap: 1.5rem;
-            padding: 1rem 2rem;
-            background: #fff;
-            border-bottom: 1px solid var(--border);
+            flex: 1;
+            overflow-x: auto;
         }
 
-        .stat-item {
+        .column {
+            min-width: 320px;
+            width: 320px;
             display: flex;
             flex-direction: column;
         }
 
-        .stat-label { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-        .stat-value { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
-        .stat-value.urgent { color: var(--high); }
+        .column-title {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-        .header-controls { display: flex; gap: 0.8rem; align-items: center; }
+        .column-count {
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
 
-        input#searchTask { padding: 0.6rem 1rem; border: 1px solid var(--border); border-radius: 6px; width: 220px; font-size: 0.85rem; }
+        .dropzone {
+            flex: 1;
+            border-radius: 12px;
+            padding: 0.5rem;
+            transition: background 0.2s ease;
+            min-height: 200px;
+        }
 
-        .btn { border: none; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
-        .btn-add { background: var(--primary); color: white; }
-        .btn-add:hover { background: var(--primary-hover); }
-        .btn-secondary { background: #fff; color: var(--text-main); border: 1px solid var(--border); }
+        .dropzone.highlight { background: rgba(37, 99, 235, 0.05); outline: 2px dashed #cbd5e1; }
 
-        .kanban-container { display: flex; gap: 1.25rem; padding: 1.5rem; overflow-x: auto; flex: 1; align-items: flex-start; }
-        .column { background: #e2e8f0; min-width: 280px; width: 280px; border-radius: 10px; display: flex; flex-direction: column; max-height: calc(100vh - 180px); }
-        .column-header { padding: 1.2rem; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
-        .counter { background: #cbd5e1; padding: 2px 8px; border-radius: 12px; color: var(--text-main); }
+        /* Card Style */
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--card-shadow);
+            cursor: grab;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            position: relative;
+        }
 
-        .task-list { padding: 0.75rem; min-height: 100px; overflow-y: auto; flex-grow: 1; }
-        .task-card { background: var(--card-bg); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: grab; border-left: 5px solid transparent; position: relative; }
-        .task-card.dragging { opacity: 0.4; }
+        .card:hover { transform: translateY(-3px); border-color: #cbd5e1; }
+        .card:active { cursor: grabbing; }
 
-        .priority-high { border-left-color: var(--high); }
-        .priority-medium { border-left-color: var(--medium); }
-        .priority-low { border-left-color: var(--low); }
+        .card-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            display: inline-block;
+        }
 
-        .task-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; padding-right: 1.5rem; }
-        .task-info { font-size: 0.75rem; color: var(--text-muted); }
-        .task-value { font-weight: 700; color: var(--text-main); margin-top: 0.5rem; display: block; }
+        .card-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 1rem; color: var(--primary); }
 
-        .btn-delete { position: absolute; top: 0.8rem; right: 0.8rem; background: none; border: none; color: #cbd5e1; cursor: pointer; font-size: 1.1rem; }
-        .btn-delete:hover { color: var(--high); }
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+        }
 
-        #modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 100; }
-        .modal-content { background: white; padding: 2rem; border-radius: 12px; width: 400px; }
-        .form-group { margin-bottom: 1.2rem; }
-        label { display: block; font-size: 0.75rem; margin-bottom: 0.4rem; font-weight: 600; color: var(--text-muted); }
-        input, select { width: 100%; padding: 0.7rem; border: 1px solid var(--border); border-radius: 6px; }
-        .modal-actions { display: flex; gap: 0.75rem; margin-top: 2rem; }
+        .card-value { font-weight: 700; font-size: 0.9rem; color: var(--primary); }
+        .card-date { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+        
+        .date-alert { color: var(--danger); font-weight: 600; }
+        .date-safe { color: var(--success); }
+
+        .card-actions {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: 0.2s;
+        }
+
+        .card:hover .card-actions { opacity: 1; }
+
+        .action-icon {
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+
+        .action-icon:hover { color: var(--danger); }
+        .edit-icon:hover { color: var(--accent); }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            width: 450px;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .form-group { margin-bottom: 1.25rem; }
+        label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-muted); }
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            outline: none;
+            transition: 0.2s;
+        }
+        input:focus { border-color: var(--accent); }
+
+        .modal-footer { display: flex; gap: 1rem; margin-top: 2rem; }
+        .btn-ghost { background: transparent; border: 1.5px solid #e2e8f0; flex: 1; padding: 0.75rem; border-radius: 8px; cursor: pointer; font-weight: 600; color: var(--text-muted); }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>FiscalFlow <span style="font-weight: 300; opacity: 0.6;">Sênior</span></h1>
-    <div class="header-controls">
-        <input type="text" id="searchTask" placeholder="🔍 Buscar..." oninput="render()">
-        <button class="btn btn-secondary" onclick="exportToCSV()">📤 Exportar</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📥 Importar</button>
-        <input type="file" id="importFile" hidden accept=".csv" onchange="importCSV(this)">
-        <button class="btn btn-add" onclick="toggleModal(true)">+ Nova Tarefa</button>
-    </div>
-</header>
+    <aside>
+        <div class="logo">📊 TaxFlow</div>
+        <nav>
+            <a href="#" class="nav-item active">Quadro Fiscal</a>
+            <a href="#" class="nav-item">Obrigações</a>
+            <a href="#" class="nav-item">Relatórios</a>
+            <a href="#" class="nav-item">Configurações</a>
+        </nav>
+    </aside>
 
-<div class="dashboard-stats">
-    <div class="stat-item">
-        <span class="stat-label">Total Pendente</span>
-        <div class="stat-value" id="stat-total-count">0</div>
-    </div>
-    <div class="stat-item">
-        <span class="stat-label">Valor em Aberto</span>
-        <div class="stat-value urgent" id="stat-total-value">R$ 0,00</div>
-    </div>
-    <div class="stat-item">
-        <span class="stat-label">Concluído</span>
-        <div class="stat-value" id="stat-done-count" style="color: var(--low)">0</div>
-    </div>
-</div>
-
-<main class="kanban-container">
-    <div class="column" data-status="pending"><div class="column-header">Pendente <span class="counter">0</span></div><div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
-    <div class="column" data-status="analysis"><div class="column-header">Em Análise <span class="counter">0</span></div><div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
-    <div class="column" data-status="payment"><div class="column-header">Pagamento <span class="counter">0</span></div><div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
-    <div class="column" data-status="done"><div class="column-header">Concluído <span class="counter">0</span></div><div class="task-list" ondrop="drop(event)" ondragover="allowDrop(event)"></div></div>
-</main>
-
-<div id="modal">
-    <div class="modal-content">
-        <h2 style="margin-bottom: 1.5rem;">Nova Obrigação</h2>
-        <form id="taskForm">
-            <div class="form-group"><label>OBRIGAÇÃO</label><input type="text" id="title" required></div>
-            <div class="form-group"><label>VENCIMENTO</label><input type="date" id="dueDate" required></div>
-            <div class="form-group"><label>VALOR (R$)</label><input type="number" step="0.01" id="value" required></div>
-            <div class="form-group">
-                <label>PRIORIDADE</label>
-                <select id="priority">
-                    <option value="high">Alta</option>
-                    <option value="medium" selected>Média</option>
-                    <option value="low">Baixa</option>
-                </select>
+    <main>
+        <header>
+            <div class="header-stats">
+                <div class="stat-group"><span>Pendentes</span><strong id="stat-pending">0</strong></div>
+                <div class="stat-group"><span>Vencendo Hoje</span><strong id="stat-today" style="color: var(--danger)">0</strong></div>
+                <div class="stat-group"><span>Valor Total</span><strong id="stat-total">R$ 0,00</strong></div>
             </div>
-            <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" style="flex:1" onclick="toggleModal(false)">Cancelar</button>
-                <button type="submit" class="btn btn-add" style="flex:2; justify-content:center">Salvar</button>
+            <button class="btn-primary" onclick="openModal()">+ Nova Tarefa</button>
+        </header>
+
+        <section class="kanban-view">
+            <div class="column" data-status="todo">
+                <div class="column-title">A Fazer <span class="column-count" id="count-todo">0</span></div>
+                <div class="dropzone" id="todo" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
             </div>
-        </form>
+            <div class="column" data-status="review">
+                <div class="column-title">Em Análise <span class="column-count" id="count-review">0</span></div>
+                <div class="dropzone" id="review" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            </div>
+            <div class="column" data-status="payment">
+                <div class="column-title">Aguardando Pagamento <span class="column-count" id="count-payment">0</span></div>
+                <div class="dropzone" id="payment" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            </div>
+            <div class="column" data-status="done">
+                <div class="column-title">Concluído <span class="column-count" id="count-done">0</span></div>
+                <div class="dropzone" id="done" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title" style="margin-bottom: 1.5rem;">Adicionar Obrigação</h2>
+            <form id="taxForm">
+                <input type="hidden" id="taskId">
+                <div class="form-group">
+                    <label>TÍTULO DA OBRIGAÇÃO</label>
+                    <input type="text" id="title" placeholder="Ex: Guia DAS Simples Nacional" required>
+                </div>
+                <div class="grid" style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>VENCIMENTO</label>
+                        <input type="date" id="dueDate" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>VALOR (R$)</label>
+                        <input type="number" step="0.01" id="value" placeholder="0,00" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>TAG DO IMPOSTO</label>
+                    <select id="tag">
+                        <option value="ICMS">ICMS</option>
+                        <option value="ISS">ISS</option>
+                        <option value="PIS/COFINS">PIS/COFINS</option>
+                        <option value="IRPJ">IRPJ</option>
+                        <option value="Simples">Simples Nacional</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-ghost" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary" style="flex: 2;">Confirmar</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<script>
-    let tasks = JSON.parse(localStorage.getItem('fiscal_tasks_v3')) || [];
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('taxflow_db')) || [];
 
-    function toggleModal(show) {
-        document.getElementById('modal').style.display = show ? 'flex' : 'none';
-        if(!show) document.getElementById('taskForm').reset();
-    }
-
-    document.getElementById('taskForm').onsubmit = (e) => {
-        e.preventDefault();
-        const rawV = parseFloat(document.getElementById('value').value);
-        tasks.push({
-            id: 'id-' + Date.now(),
-            title: document.getElementById('title').value,
-            dueDate: document.getElementById('dueDate').value,
-            valueRaw: rawV,
-            value: rawV.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            priority: document.getElementById('priority').value,
-            status: 'pending'
-        });
-        saveAndRender();
-        toggleModal(false);
-    };
-
-    function deleteTask(id) { if(confirm('Excluir esta tarefa?')) { tasks = tasks.filter(t => t.id !== id); saveAndRender(); } }
-    function allowDrop(ev) { ev.preventDefault(); }
-    function drag(ev) { ev.dataTransfer.setData("taskId", ev.target.id); ev.target.classList.add('dragging'); }
-    function drop(ev) {
-        ev.preventDefault();
-        const id = ev.dataTransfer.getData("taskId");
-        const dropzone = ev.target.closest('.task-list');
-        if (dropzone) {
-            tasks = tasks.map(t => t.id === id ? { ...t, status: dropzone.parentElement.dataset.status } : t);
-            saveAndRender();
+        // App Logic
+        function saveTasks() {
+            localStorage.setItem('taxflow_db', JSON.stringify(tasks));
+            render();
         }
-    }
 
-    function exportToCSV() {
-        let csv = "\uFEFFObrigacao;Vencimento;Valor;Prioridade;Status\n";
-        tasks.forEach(t => csv += `${t.title};${t.dueDate};${t.valueRaw};${t.priority};${t.status}\n`);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `relatorio_fiscal.csv`;
-        link.click();
-    }
+        function getCountdown(dateStr) {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const target = new Date(dateStr);
+            target.setHours(24,0,0,0);
+            const diffTime = target - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) return { text: "Vence Hoje", class: "date-alert" };
+            if (diffDays < 0) return { text: `Atrasado ${Math.abs(diffDays)}d`, class: "date-alert" };
+            if (diffDays <= 3) return { text: `Vence em ${diffDays}d`, class: "date-alert" };
+            return { text: `Vence em ${diffDays}d`, class: "date-safe" };
+        }
 
-    function importCSV(input) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const lines = e.target.result.split('\n').slice(1);
-            lines.forEach(line => {
-                const [title, date, val, prio, status] = line.split(';');
-                if(title) tasks.push({
-                    id: 'id-'+Date.now()+Math.random(), title, dueDate: date, valueRaw: parseFloat(val),
-                    value: parseFloat(val).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}),
-                    priority: prio, status: status.trim()
-                });
+        function render() {
+            // Limpar listas
+            document.querySelectorAll('.dropzone').forEach(dz => dz.innerHTML = '');
+            
+            let totalValue = 0;
+            let pendingCount = 0;
+            let todayCount = 0;
+
+            tasks.forEach(task => {
+                const countdown = getCountdown(task.dueDate);
+                if (task.status !== 'done') {
+                    totalValue += parseFloat(task.value);
+                    pendingCount++;
+                    if (countdown.text === "Vence Hoje") todayCount++;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.draggable = true;
+                card.id = task.id;
+                card.ondragstart = (e) => {
+                    e.dataTransfer.setData("text/plain", task.id);
+                    card.style.opacity = '0.5';
+                };
+                card.ondragend = () => card.style.opacity = '1';
+
+                card.innerHTML = `
+                    <div class="card-actions">
+                        <span class="action-icon edit-icon" onclick="editTask('${task.id}')">✎</span>
+                        <span class="action-icon" onclick="deleteTask('${task.id}')">🗑</span>
+                    </div>
+                    <span class="card-tag">${task.tag}</span>
+                    <div class="card-title">${task.title}</div>
+                    <div class="card-footer">
+                        <div class="card-value">R$ ${parseFloat(task.value).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
+                        <div class="card-date ${countdown.class}">
+                            <span>⏱</span> ${countdown.text}
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById(task.status).appendChild(card);
             });
-            saveAndRender();
+
+            // Atualizar stats
+            document.getElementById('stat-total').innerText = totalValue.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('stat-pending').innerText = pendingCount;
+            document.getElementById('stat-today').innerText = todayCount;
+
+            // Counters
+            const statuses = ['todo', 'review', 'payment', 'done'];
+            statuses.forEach(s => {
+                document.getElementById(`count-${s}`).innerText = tasks.filter(t => t.status === s).length;
+            });
+        }
+
+        // CRUD
+        const modal = document.getElementById('modal');
+        const form = document.getElementById('taxForm');
+
+        function openModal() {
+            document.getElementById('modal-title').innerText = "Adicionar Obrigação";
+            document.getElementById('taskId').value = "";
+            form.reset();
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() { modal.style.display = 'none'; }
+
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('taskId').value;
+            const data = {
+                title: document.getElementById('title').value,
+                dueDate: document.getElementById('dueDate').value,
+                value: document.getElementById('value').value,
+                tag: document.getElementById('tag').value
+            };
+
+            if (id) {
+                tasks = tasks.map(t => t.id === id ? { ...t, ...data } : t);
+            } else {
+                tasks.push({ ...data, id: 't-' + Date.now(), status: 'todo' });
+            }
+
+            saveTasks();
+            closeModal();
         };
-        reader.readAsText(file);
-    }
 
-    function saveAndRender() { localStorage.setItem('fiscal_tasks_v3', JSON.stringify(tasks)); render(); }
+        window.editTask = (id) => {
+            const task = tasks.find(t => t.id === id);
+            document.getElementById('modal-title').innerText = "Editar Obrigação";
+            document.getElementById('taskId').value = task.id;
+            document.getElementById('title').value = task.title;
+            document.getElementById('dueDate').value = task.dueDate;
+            document.getElementById('value').value = task.value;
+            document.getElementById('tag').value = task.tag;
+            modal.style.display = 'flex';
+        };
 
-    function render() {
-        const search = document.getElementById('searchTask').value.toLowerCase();
-        document.querySelectorAll('.task-list').forEach(l => l.innerHTML = '');
-        
-        let totalPendenteValue = 0;
-        const filtered = tasks.filter(t => t.title.toLowerCase().includes(search));
-        
-        filtered.forEach(task => {
-            if(task.status !== 'done') totalPendenteValue += task.valueRaw;
-            const card = document.createElement('div');
-            card.className = `task-card priority-${task.priority}`;
-            card.id = task.id; card.draggable = true; card.ondragstart = drag;
-            card.ondragend = (e) => e.target.classList.remove('dragging');
-            card.innerHTML = `<button class="btn-delete" onclick="deleteTask('${task.id}')">&times;</button>
-                <div class="task-title">${task.title}</div>
-                <div class="task-info">📅 ${task.dueDate.split('-').reverse().join('/')}</div>
-                <span class="task-value">${task.value}</span>`;
-            document.querySelector(`[data-status="${task.status}"] .task-list`).appendChild(card);
-        });
+        window.deleteTask = (id) => {
+            if (confirm("Deseja excluir esta tarefa?")) {
+                tasks = tasks.filter(t => t.id !== id);
+                saveTasks();
+            }
+        };
 
-        document.getElementById('stat-total-count').innerText = tasks.filter(t => t.status !== 'done').length;
-        document.getElementById('stat-done-count').innerText = tasks.filter(t => t.status === 'done').length;
-        document.getElementById('stat-total-value').innerText = totalPendenteValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        
-        document.querySelectorAll('.column').forEach(col => {
-            col.querySelector('.counter').innerText = filtered.filter(t => t.status === col.dataset.status).length;
-        });
-    }
-    render();
-</script>
+        // Drag & Drop
+        window.allowDrop = (e) => {
+            e.preventDefault();
+            e.currentTarget.classList.add('highlight');
+        };
+
+        window.dragLeave = (e) => {
+            e.currentTarget.classList.remove('highlight');
+        };
+
+        window.drop = (e) => {
+            e.preventDefault();
+            const id = e.dataTransfer.getData("text/plain");
+            const newStatus = e.currentTarget.id;
+            e.currentTarget.classList.remove('highlight');
+            
+            tasks = tasks.map(t => t.id === id ? { ...t, status: newStatus } : t);
+            saveTasks();
+        };
+
+        render();
+    </script>
 </body>
 </html>
